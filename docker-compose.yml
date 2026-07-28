@@ -3,7 +3,7 @@ services:
     image: ghcr.io/kodustech/kodus-ai-web:${IMAGE_TAG:-latest}
     container_name: kodus-web-prod
     ports:
-      - "${WEB_PORT}:${WEB_PORT}"
+      - "127.0.0.1:${WEB_PORT}:${WEB_PORT}"
     environment:
       - NODE_ENV=production
     networks:
@@ -24,7 +24,7 @@ services:
         max-size: "200m"
         max-file: "10"
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     environment:
       - ENV=production
       - NODE_ENV=production
@@ -117,7 +117,7 @@ services:
         max-size: "200m"
         max-file: "10"
     ports:
-      - "${API_WEBHOOKS_PORT:-3332}:${API_WEBHOOKS_PORT:-3332}"
+      - "127.0.0.1:${API_WEBHOOKS_PORT:-3332}:${API_WEBHOOKS_PORT:-3332}"
     environment:
       - ENV=production
       - NODE_ENV=production
