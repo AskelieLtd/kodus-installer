@@ -1,8 +1,9 @@
 # 0006. RabbitMQ blocks all publishing with generic "timeout" on high-RAM hosts
 
-- **Status:** Investigating   <!-- root cause confirmed. First fix (RABBITMQ_DISK_FREE_LIMIT env var) proved inert on RabbitMQ 4.x and recurred; replaced with a config-file mount. Awaiting live confirmation the alarm clears and queued jobs drain. -->
+- **Status:** Fixed
 - **Severity:** High
 - **Reported:** 2026-07-28
+- **Resolved:** 2026-07-29
 
 ## Symptom
 
@@ -135,6 +136,22 @@ permanent:
 docker compose exec rabbitmq rabbitmqctl set_disk_free_limit "2GB"
 docker compose exec rabbitmq rabbitmq-diagnostics check_alarms
 ```
+
+## Verification
+
+Both must hold after `docker compose up -d --force-recreate rabbitmq`:
+
+```
+docker compose exec rabbitmq rabbitmq-diagnostics environment | grep -i disk_free_limit
+  → the absolute 2GB value, NOT a relative one
+
+docker compose exec rabbitmq rabbitmq-diagnostics check_alarms
+  → no alarms listed
+```
+
+Checking the effective value (rather than assuming the setting applied) is the
+specific lesson of the failed attempt above — the env var produced a clean boot
+and no warning while doing nothing at all.
 
 ## Knock-on effect worth knowing
 
