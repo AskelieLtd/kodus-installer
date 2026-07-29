@@ -185,6 +185,13 @@ services:
         hard: 65536
     volumes:
       - rabbitmq-data-prod:/var/lib/rabbitmq
+      # Replaces the image's baked-in rabbitmq.conf, whose
+      # disk_free_limit.relative=1.20 (require >= 1.2x total RAM free on disk)
+      # false-triggers the free-disk alarm on high-RAM hosts and silently blocks
+      # ALL publishing — surfacing to publishers as a bare "timeout". See
+      # docs/bugs/0006. Config-via-RABBITMQ_* env vars was dropped in RabbitMQ
+      # 3.9, so this must be a file mount, not an environment variable.
+      - ./docker/rabbitmq/rabbitmq.prod.conf:/etc/rabbitmq/rabbitmq.conf:ro
     command: /usr/local/bin/init-definitions.sh
     restart: unless-stopped
 
