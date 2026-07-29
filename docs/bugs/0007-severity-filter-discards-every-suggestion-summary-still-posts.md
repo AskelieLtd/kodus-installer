@@ -110,11 +110,15 @@ suspecting the LLM provider. In order of cost-to-check:
 1. `priorityStatus` on the stored suggestions — is anything being generated at
    all, and what happened to it? This settles generation-vs-delivery in one query
    and would have short-circuited this entire investigation.
-2. Whether the PR has reviewable files at all. Two cases legitimately report "No
-   changed files in this pull request" and bail in well under a second, without
-   ever contacting the LLM: PRs ingested by the install-time backfill (stored
-   with an empty `files: []`), and dependency-manifest-only PRs such as
-   dependabot bumps (single file, empty `patch`). Check with:
+2. Whether the PR has reviewable files at all. Three cases report "No changed
+   files in this pull request" and bail in well under a second, without ever
+   contacting the LLM: a base-branch (or other) filter in the saved config
+   excluding the PR — see
+   [0009](0009-base-branch-filter-added-on-config-save-blocks-reviews-org-wide.md),
+   which is org-wide and the one to suspect if *every* repo is affected; PRs
+   ingested by the install-time backfill (stored with an empty `files: []`); and
+   dependency-manifest-only PRs such as dependabot bumps (single file, empty
+   `patch`). Check the latter two with:
    `db.pullRequests.countDocuments({ files: { $size: 0 } })` versus
    `countDocuments({})`.
 3. Whether the broker is blocked — a raised RabbitMQ alarm stops jobs reaching
